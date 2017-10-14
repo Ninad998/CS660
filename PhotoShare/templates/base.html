@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% if title %}
+        <title>{{ title }}</title>
+    {% else %}
+        <title>Welcome to PhotoShare</title>
+    {% endif %}
+</head>
+<body>
+
+<div>
+    <a href="/">Home</a>
+    {% if name %}
+        <a href='/album'>Make/Edit Album</a>
+        <a href='/upload'>Upload a Photo</a>
+        <a href='/profile'>Profile</a>
+        <a href='/logout'>Logout</a>
+    {% endif %}
+</div>
+
+<hr>
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li>{{ message }} </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if name %}
+    <h4>Hello {{ name }}!</h4>
+    <hr>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+</body>
+</html>

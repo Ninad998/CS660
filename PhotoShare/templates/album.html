@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <table border='0'>
+        <form method="POST" action="/make">
+            <tr>
+                <td>New album:</td>
+                <td><input type='text' name='album' id='album' placeholder='album name' required/></td>
+            </tr>
+            <tr>
+                <td><input type='submit' name='submit' value='Make'/><br/><br/></td>
+                <td></td>
+            </tr>
+        </form>
+        <form method="GET" action="/edit">
+            <tr>
+                <td>Select album:</td>
+                <td>
+                    <select name="album" width="300px">
+                        {% for id, name in album_list %}
+                            <option value="{{ id }}"{% if loop.first %} SELECTED{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><input type='submit' name='submit' value='Edit'/></td>
+                <td></td>
+            </tr>
+        </form>
+    </table>
+
+{% endblock %}

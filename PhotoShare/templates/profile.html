@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if email %}
+        <h4 style="color: red"> Email already in use! Use another one or <a href="/login">login</a></h4>
+    {% endif %}
+    {% if date %}
+        <h4 style="color: red"> Please enter Date of Birth in YYYY-MM-DD format!</h4>
+    {% endif %}
+    {% if datebig %}
+        <h4 style="color: red"> Please enter a valid Date of Birth!</h4>
+    {% endif %}
+    <div class="title">
+        <h1>Enter your information below</h1>
+    </div>
+    <div id="content">
+        <form method='POST' action='{{ url_for('profile') }}'>
+            <table border='0'>
+                <tr>
+                    <td>Email:</td>
+                    <td><input type='text' name='email' id='email' value={{ user['email'] }} disabled /></td>
+                </tr>
+                <tr>
+                    <td>Password:</td>
+                    <td><input type='password' name='password' id='password' value={{ user['password'] }} required /></td>
+                </tr>
+                <tr>
+                    <td>First Name:</td>
+                    <td><input type='text' name='firstname' id='firstname' value={{ user['firstname'] }}  required /></td>
+                </tr>
+                <tr>
+                    <td>Last Name:</td>
+                    <td><input type='text' name='lastname' id='lastname' value={{ user['lastname'] }} required /></td>
+                </tr>
+                <tr>
+                    <td>Date of Birth:</td>
+                    <td><input type='text' name='dateOfBirth' id='dateOfBirth' value={{ user['dateOfBirth'] }} required /></td>
+                </tr>
+                <tr>
+                    <td>Home Town:</td>
+                    <td><input type='text' name='homeTown' id='homeTown' value={{ user['homeTown'] }} /></td>
+                </tr>
+                <tr>
+                    <td>Gender:</td>
+                    <td>
+                        <input type="radio" name="gender" value="M" checked /> Male<br>
+                        <input type="radio" name="gender" value="F" /> Female<br>
+                        <input type="radio" name="gender" value="O" /> Other
+                    </td>
+                </tr>
+            </table>
+            <p><input type='submit' name='submit' value='Update' /></p>
+        </form>
+    </div>
+{% endblock %}
