@@ -8,7 +8,7 @@ import os, base64
 app = Flask(__name__)
 app.secret_key = 'super secret string'
 
-UPLOAD_FOLDER = os.path.dirname(os.path.realpath(__file__)) + "/images"
+UPLOAD_FOLDER = os.path.dirname(os.path.realpath(__file__)) + "/static/images"
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__)
@@ -85,13 +85,33 @@ def new_page_function():
 '''
 
 
+def getAllPhotos(user):
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    print("SELECT caption, dir FROM photos WHERE album NOT IN "
+                   "(SELECT id FROM albums WHERE owner = "
+                   "(SELECT id FROM users WHERE email = \'%s\'));" % user)
+    cursor.execute("SELECT caption, dir FROM photos WHERE album NOT IN "
+                   "(SELECT id FROM albums WHERE owner = "
+                   "(SELECT id FROM users WHERE email = \'%s\'));" % user)
+    rows = cursor.fetchall()
+    photos = []
+    for row in rows:
+        photos.append((row[0], str('images/' + row[1])))
+    cursor.close()
+    conn.close()
+    return photos
+
+
 # default page
 @app.route("/", methods=['GET'])
 def index():
     if flask_login.current_user.is_anonymous:
         return render_template('login.html')
     else:
-        return render_template('index.html', name=flask_login.current_user.id)
+        photos = getAllPhotos(flask_login.current_user.id)
+        return render_template('index.html', photos=photos, name=flask_login.current_user.id)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -318,7 +338,6 @@ def savePhotoData(album, caption, name):
     conn = db['conn']
     cursor = db['cursor']
     sql = "INSERT INTO photos (album, caption, dir) VALUES (\"%s\", \"%s\", \"%s\");" % (album, caption, name)
-    print(sql)
     print(cursor.execute(sql))
     conn.commit()
     cursor.close()
@@ -351,7 +370,6 @@ def upload():
 
         listOfFiles = [f for f in os.listdir(directory + name)]
         i = 1
-        print(listOfFiles)
         for f in listOfFiles:
             i = i + 1
 
@@ -359,7 +377,6 @@ def upload():
         source = directory + name + "/" + filename
         extension = str(filename.split(".")[1])
 
-        print(directory + name)
         newname = directory + name + "/" + str(i) + "." + extension
         os.rename(source, newname)
 
@@ -375,7 +392,6 @@ def upload():
 @flask_login.login_required
 def album():
     album = getAlbumList(flask_login.current_user.id)
-    print(album)
     return render_template('album.html', album_list=album, name=flask_login.current_user.id)
 
 
@@ -405,14 +421,27 @@ def getAlbumName(id):
     db = getMysqlConnection()
     conn = db['conn']
     cursor = db['cursor']
-    cursor.execute("SELECT name FROM albums WHERE id = %s", id)
+    cursor.execute("SELECT name FROM albums WHERE id = %s;", id)
     name = cursor.fetchone()[0]
     cursor.close()
     conn.close()
     return name
 
 
-@app.route('/edit', methods=['GET', 'POST'])
+def getPhotos(album):
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    cursor.execute("SELECT caption, dir FROM photos WHERE album = %s;" % album)
+    rows = cursor.fetchall()
+    photos = []
+    for row in rows:
+        photos.append((row[0], str('images/' + row[1])))
+    cursor.close()
+    conn.close()
+    return photos
+
+@app.route('/view', methods=['GET', 'POST'])
 @flask_login.login_required
 def makeEdit():
     if request.method == 'GET':
@@ -423,7 +452,9 @@ def makeEdit():
             return flask.redirect(flask.url_for('album'))
 
         album = getAlbumName(id)
-        return render_template('edit.html', album_name=album, album_id=id, name=flask_login.current_user.id)
+        photos = getPhotos(id)
+        return render_template('view.html', album_name=album, album_id=id, photos=photos,
+                               name=flask_login.current_user.id)
 
     try:
         id = request.form.get('id')
@@ -455,7 +486,7 @@ def makeEdit():
 #     album = cursor.fetchone()[0]
 #     cursor.close()
 #     conn.close()
-#     return render_template('edit.html', id=id, album=album, name=flask_login.current_user.id)
+#     return render_template('view.html', id=id, album=album, name=flask_login.current_user.id)
 
 
 app.secret_key = 'super secret string'
@@ -465,4 +496,4 @@ app.config['SESSION_TYPE'] = 'filesystem'
 if __name__ == "__main__":
     # this is invoked when in the shell  you run
     # $ python app.py
-    app.run(port=5000, debug=True)
+    app.run(port=5000, debug=True, threaded=True)
