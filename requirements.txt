@@ -13,4 +13,3 @@ socketIO-client==0.7.2
 socketio-server==0.0.9
 SQLAlchemy==1.1.9
 Werkzeug==0.12.2
-WTForms==2.1
