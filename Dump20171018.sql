@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `db_assignment` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `db_assignment`;
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
 -- Host: localhost    Database: db_assignment
@@ -57,7 +55,7 @@ CREATE TABLE `comments` (
   `photo_id` int(11) NOT NULL,
   `text` varchar(200) DEFAULT NULL,
   `user` int(11) NOT NULL,
-  `date` date DEFAULT NULL,
+  `dateofcreation` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `FK_5_idx` (`user`),
   KEY `FK_6_idx` (`photo_id`),
@@ -141,10 +139,11 @@ CREATE TABLE `photos` (
   `album` int(11) NOT NULL,
   `caption` varchar(45) DEFAULT NULL,
   `dir` varchar(45) DEFAULT NULL,
+  `dateofcreation` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `FK_4_idx` (`album`),
   CONSTRAINT `FK_4` FOREIGN KEY (`album`) REFERENCES `albums` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,35 +152,8 @@ CREATE TABLE `photos` (
 
 LOCK TABLES `photos` WRITE;
 /*!40000 ALTER TABLE `photos` DISABLE KEYS */;
-INSERT INTO `photos` VALUES (7,1,'asd','/1/1.jpeg');
+INSERT INTO `photos` VALUES (5,1,'asd','/1/4.jpeg','2017-10-17 18:24:29'),(6,1,'asd','/1/5.jpeg','2017-10-17 18:24:29'),(7,1,'asd','/1/1.jpeg','2017-10-17 17:26:59'),(10,1,'asd','/1/2.jpeg','2017-10-17 17:26:59'),(11,1,'asd','/1/3.jpeg','2017-10-17 17:26:59'),(12,1,'asd','/1/6.jpeg','2017-10-17 18:13:11'),(13,1,'asd','/1/7.jpeg','2017-10-17 18:14:57'),(14,1,'asd','/1/8.jpeg','2017-10-17 18:23:08');
 /*!40000 ALTER TABLE `photos` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `phototags`
---
-
-DROP TABLE IF EXISTS `phototags`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `phototags` (
-  `photoId` int(11) NOT NULL,
-  `tagId` int(11) NOT NULL,
-  PRIMARY KEY (`photoId`,`tagId`),
-  KEY `FK_7_idx` (`photoId`),
-  KEY `FK_8_idx` (`tagId`),
-  CONSTRAINT `FK_7` FOREIGN KEY (`photoId`) REFERENCES `photos` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  CONSTRAINT `FK_8` FOREIGN KEY (`tagId`) REFERENCES `tags` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `phototags`
---
-
-LOCK TABLES `phototags` WRITE;
-/*!40000 ALTER TABLE `phototags` DISABLE KEYS */;
-/*!40000 ALTER TABLE `phototags` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -192,9 +164,11 @@ DROP TABLE IF EXISTS `tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tags` (
-  `id` int(11) NOT NULL,
-  `word` varchar(15) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `photoId` int(11) NOT NULL,
+  `word` varchar(15) NOT NULL,
+  PRIMARY KEY (`photoId`,`word`),
+  KEY `FK_7_idx` (`photoId`),
+  CONSTRAINT `FK_7` FOREIGN KEY (`photoId`) REFERENCES `photos` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -204,6 +178,7 @@ CREATE TABLE `tags` (
 
 LOCK TABLES `tags` WRITE;
 /*!40000 ALTER TABLE `tags` DISABLE KEYS */;
+INSERT INTO `tags` VALUES (7,'asd'),(7,'asd1'),(7,'asd2'),(7,'asd3');
 /*!40000 ALTER TABLE `tags` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -246,4 +221,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-14 20:21:38
+-- Dump completed on 2017-10-18 14:55:02
