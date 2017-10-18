@@ -6,10 +6,10 @@
         <form method="POST" action="/make">
             <tr>
                 <td>New album:</td>
-                <td><input type='text' name='album' id='album' placeholder='album name' required/></td>
+                <td><input type='text' name='album' id='album' placeholder='album name' required class="form-control" /></td>
             </tr>
             <tr>
-                <td><input type='submit' name='submit' value='Create'/><br/><br/></td>
+                <td><input type='submit' name='submit' value='Create' class="btn btn-outline-secondary" /><br/><br/></td>
                 <td></td>
             </tr>
         </form>
@@ -17,7 +17,7 @@
             <tr>
                 <td>Select album:</td>
                 <td>
-                    <select name="album" width="300px">
+                    <select name="album" class="form-control" >
                         {% for id, name in album_list %}
                             <option value="{{ id }}"{% if loop.first %} SELECTED{% endif %}>{{ name }}</option>
                         {% endfor %}
@@ -25,7 +25,7 @@
                 </td>
             </tr>
             <tr>
-                <td><input type='submit' name='submit' value='View'/></td>
+                <td><input type='submit' name='submit' value='View' class="btn btn-outline-primary" /></td>
                 <td></td>
             </tr>
         </form>

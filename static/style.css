@@ -1,3 +1,9 @@
 body {
     padding: 40px;
 }
+.center-block {
+    margin-left:auto;
+    margin-right:auto;
+    display:block;
+    text-align:center
+}

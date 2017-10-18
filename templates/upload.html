@@ -15,7 +15,7 @@
             <tr>
                 <td>Select album:</td>
                 <td>
-                    <select name="album" width="300px">
+                    <select name="album" class="form-control" >
                         {% for id, name in album_list %}
                             <option value="{{ id }}"{% if loop.first %} SELECTED{% endif %}>{{ name }}</option>
                         {% endfor %}
@@ -24,15 +24,19 @@
             </tr>
             <tr>
                 <td>Select photo:</td>
-                <td><input type="file" name="photo" required/></td>
+                <td><input type="file" name="photo" required class="form-control" /></td>
             </tr>
             <tr>
                 <td>Please caption:</td>
-                <td><input type="text" name="caption" required/></td>
+                <td><input type="text" name="caption" required class="form-control" /></td>
+            </tr>
+            <tr>
+                <td>Tags:</td>
+                <td><input type="text" name="tags" class="form-control" /></td>
             </tr>
         </table>
         <p>
-            <input type='submit' name='submit' value='Upload'/>
+            <input type='submit' name='submit' value='Upload' class="btn btn-outline-primary" />
         </p>
     </form>
 {% endblock %}

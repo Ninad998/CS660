@@ -30,27 +30,32 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="collapse navbar-collapse" id="navbarText">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="/">Home</a>
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+            <a class="nav-link" href="/">Home</a>
+        </li>
+        {% if login %}
+            <li class="nav-item">
+                <a class="nav-link" href='/album'>Make/Edit Album</a>
             </li>
-            {% if name %}
-                <li class="nav-item">
-                    <a class="nav-link" href='/album'>Make/Edit Album</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href='/upload'>Upload a Photo</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href='/profile'>Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href='/logout'>Logout</a>
-                </li>
-            {% endif %}
-        </ul>
-    </div>
+            <li class="nav-item">
+                <a class="nav-link" href='/upload'>Upload a Photo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href='/profile'>Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href='/logout'>Logout</a>
+            </li>
+        {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href='/login'>Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href='/register'>Register</a>
+            </li>
+        {% endif %}
+    </ul>
 </nav>
 
 <hr>
@@ -62,7 +67,7 @@
     </ul>
 {% endif %}
 
-{% if name %}
+{% if login %}
     <h4>Hello {{ name }}!</h4>
     <hr>
 {% endif %}
