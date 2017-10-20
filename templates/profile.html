@@ -17,39 +17,60 @@
         <form method='POST' action='{{ url_for('profile') }}'>
             <table border='0'>
                 <tr>
-                    <td>Email:</td>
-                    <td><input type='text' name='email' id='email' value={{ user['email'] }} disabled /></td>
-                </tr>
-                <tr>
-                    <td>Password:</td>
-                    <td><input type='password' name='password' id='password' value={{ user['password'] }} required /></td>
-                </tr>
-                <tr>
-                    <td>First Name:</td>
-                    <td><input type='text' name='firstname' id='firstname' value={{ user['firstname'] }}  required /></td>
-                </tr>
-                <tr>
-                    <td>Last Name:</td>
-                    <td><input type='text' name='lastname' id='lastname' value={{ user['lastname'] }} required /></td>
-                </tr>
-                <tr>
-                    <td>Date of Birth:</td>
-                    <td><input type='text' name='dateOfBirth' id='dateOfBirth' value={{ user['dateOfBirth'] }} required /></td>
-                </tr>
-                <tr>
-                    <td>Home Town:</td>
-                    <td><input type='text' name='homeTown' id='homeTown' value={{ user['homeTown'] }} /></td>
-                </tr>
-                <tr>
-                    <td>Gender:</td>
+                    <td><label for="email1">Email:</label></td>
                     <td>
-                        <input type="radio" name="gender" value="M" checked /> Male<br>
-                        <input type="radio" name="gender" value="F" /> Female<br>
-                        <input type="radio" name="gender" value="O" /> Other
+                        <input type='text' name='email1' id='email1' value={{ user['email'] }} disabled class="form-control" />
+                        <input type='hidden' name='email' id='email' value={{ user['email'] }} />
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="password">Password:</label></td>
+                    <td>
+                        <input type='password' name='password' id='password'
+                               value={{ user['password'] }} required class="form-control" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="firstname">First Name:</label></td>
+                    <td>
+                        <input type='text' name='firstname' id='firstname'
+                               value={{ user['firstname'] }}  required class="form-control" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="lastname">Last Name:</label></td>
+                    <td>
+                        <input type='text' name='lastname' id='lastname'
+                               value={{ user['lastname'] }} required class="form-control" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="dateOfBirth">Date of Birth:</label></td>
+                    <td>
+                        <input type='text' name='dateOfBirth' id='dateOfBirth'
+                               value={{ user['dateOfBirth'] }} required class="form-control" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="homeTown">Home Town:</label></td>
+                    <td>
+                        <input type='text' name='homeTown' id='homeTown'
+                               value={{ user['homeTown'] }} class="form-control" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="gender">Gender:</label></td>
+                    <td>
+                        <input type="radio" name="gender" value="M"
+                                {% if user['gender'] == 'M' %} checked {% endif %} /> Male<br>
+                        <input type="radio" name="gender" value="F"
+                                {% if user['gender'] == 'F' %} checked {% endif %} /> Female<br>
+                        <input type="radio" name="gender" value="O"
+                                {% if user['gender'] == 'O' %} checked {% endif %} /> Other
                     </td>
                 </tr>
             </table>
-            <p><input type='submit' name='submit' value='Update' /></p>
+            <p><input type='submit' name='submit' value='Update' class="btn btn-outline-secondary" /></p>
         </form>
     </div>
 {% endblock %}

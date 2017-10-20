@@ -1,19 +1,19 @@
+# coding=utf-8
 import flask
-from flask import Flask, redirect, request, abort, render_template, session
+from flask import Flask, request, abort, render_template, session
 from flaskext.mysql import MySQL
 import flask_login
 from werkzeug import secure_filename
-import os, base64
+import os
 
 app = Flask(__name__)
 app.secret_key = 'super secret string'
 
 UPLOAD_FOLDER = os.path.dirname(os.path.realpath(__file__)) + "/static/images"
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 # begin code used for login
 login_manager = flask_login.LoginManager()
@@ -28,10 +28,12 @@ app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
 mysql.init_app(app)
 
+
 def getMysqlConnection():
     connection = mysql.connect()
     cursor = connection.cursor()
     return {"cursor": cursor, "conn": connection}
+
 
 def getUserList():
     db = getMysqlConnection()
@@ -61,7 +63,7 @@ def user_loader(email):
 A new page looks like this:
 @app.route('new_page_name')
 def new_page_function():
-	return new_page_html
+    return new_page_html
 '''
 
 
@@ -73,7 +75,9 @@ def getAllPhotos():
     rows = cursor.fetchall()
     photos = []
     for row in rows:
-        photos.append((row[0], str('images/' + row[1])))
+        userId = row[1].split("/")[1]
+        photoId = row[1].split("/")[2].split(".")[0]
+        photos.append((row[0], str('images' + row[1]), userId, photoId))
     cursor.close()
     conn.close()
     return photos
@@ -83,7 +87,7 @@ def getAllPhotos():
 @app.route("/", methods=['GET'])
 def index():
     photos = getAllPhotos()
-    if flask_login.current_user.is_anonymous:
+    if not flask_login.current_user.is_authenticated:
         return render_template('index.html', photos=photos,
                                login=flask_login.current_user.is_authenticated)
     else:
@@ -130,14 +134,13 @@ def login():
             session['username'] = email
             return flask.redirect(flask.url_for('index'))  # protected is a function defined in this file
         else:
-            return render_template('login.html', title='Sign In', message='Password Incorrect!')
+            return render_template('login.html', title='Sign In', messages=['Password Incorrect!'])
     else:
         print("couldn't find all tokens")
-        return render_template('login.html', title='Sign In', message='Email Incorrect!')
+        return render_template('login.html', title='Sign In', messages=['Email Incorrect!'])
 
 
-
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 @flask_login.login_required
 def profile():
     if request.method == 'GET':
@@ -147,14 +150,14 @@ def profile():
         cursor = db['cursor']
         if cursor.execute("SELECT firstname, lastname, email, dateOfBirth, "
                           "homeTown, gender, password FROM users WHERE email=%s;", flask_login.current_user.id):
-            for row in cursor.fetchall():
-                user['firstname'] = row[0]
-                user['lastname'] = row[1]
-                user['email'] = row[2]
-                user['dateOfBirth'] = row[3]
-                user['homeTown'] = row[4]
-                user['gender'] = row[5]
-                user['password'] = row[6]
+            row = cursor.fetchone()
+            user['firstname'] = row[0]
+            user['lastname'] = row[1]
+            user['email'] = row[2]
+            user['dateOfBirth'] = row[3]
+            user['homeTown'] = row[4]
+            user['gender'] = row[5]
+            user['password'] = row[6]
 
         cursor.close()
         conn.close()
@@ -175,41 +178,31 @@ def profile():
         if register['dateOfBirth'] != "" and register['dateOfBirth'] is not None:
             dob = datetime.datetime.strptime(register['dateOfBirth'], '%Y-%m-%d')
             if dob >= datetime.datetime.today():
-                return render_template('register.html', datebig=True)
+                return render_template('profile.html', datebig=True)
 
         for key, value in register.items():
             if value == '':
                 register[key] = 'NULL'
 
     except ValueError:
-        return render_template('register.html', date=True,
-                               login=flask_login.current_user.is_authenticated)
-    except:
-        print("couldn't find all tokens")
-        return render_template('register.html', email=True,
+        return render_template('profile.html', date=True,
                                login=flask_login.current_user.is_authenticated)
 
-    test = isEmailUnique(register['email'])
-    print(test)
-    if test:
-        db = getMysqlConnection()
-        conn = db['conn']
-        cursor = db['cursor']
-        print(cursor.execute("UPDATE users SET " +
-                             "firstname = %s, lastname = %s, email = %s, "
-                             "dateOfBirth = %s, homeTown = %s, gender = %s, password = %s " +
-                             "WHERE email = %s;", (register['firstname'], register['lastname'],
-                                                   register['dateOfBirth'], register['homeTown'],
-                                                   register['gender'], register['password'],
-                                                   register['email'])))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return render_template('index.html', name=flask_login.current_user.id, message='Account Created!',
-                               login=flask_login.current_user.is_authenticated)
-    else:
-        return render_template('register.html', email=True,
-                               login=flask_login.current_user.is_authenticated)
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+
+    print(cursor.execute("UPDATE users SET " +
+                         "firstname = %s, lastname = %s, dateOfBirth = %s, "
+                         "homeTown = %s, gender = %s, password = %s " +
+                         "WHERE email = %s;", (register['firstname'], register['lastname'],
+                                               register['dateOfBirth'], register['homeTown'],
+                                               register['gender'], register['password'],
+                                               register['email'])))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return flask.redirect(flask.url_for('index'))
 
 
 @app.route('/logout')
@@ -222,6 +215,7 @@ def logout():
         flask_login.logout_user()
         return render_template('index.html', photos=photos, messages=['Logged out'],
                                login=flask_login.current_user.is_authenticated)
+
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
@@ -254,7 +248,7 @@ def register_user():
     import datetime
     register = {}
     try:
-        register['email'] = request.form.get('email')
+        register['email'] = str(request.form.get('email')).lower()
         register['password'] = request.form.get('password')
         register['firstname'] = request.form.get('firstname')
         register['lastname'] = request.form.get('lastname')
@@ -291,9 +285,9 @@ def register_user():
         print(cursor.execute("INSERT INTO users " +
                              "(firstname, lastname, email, dateOfBirth, homeTown, gender, password) " +
                              "VALUES (%s, %s, %s, %s, %s, %s, %s);", (register['firstname'], register['lastname'],
-                                                                       register['email'], register['dateOfBirth'],
-                                                                       register['homeTown'], register['gender'],
-                                                                       register['password'])))
+                                                                      register['email'], register['dateOfBirth'],
+                                                                      register['homeTown'], register['gender'],
+                                                                      register['password'])))
         conn.commit()
         cursor.close()
         conn.close()
@@ -480,10 +474,13 @@ def getPhotos(album):
     rows = cursor.fetchall()
     photos = []
     for row in rows:
-        photos.append((row[0], str('images/' + row[1])))
+        userId = row[1].split("/")[1]
+        photoId = row[1].split("/")[2].split(".")[0]
+        photos.append((row[0], str('images' + row[1]), userId, photoId))
     cursor.close()
     conn.close()
     return photos
+
 
 @app.route('/view', methods=['GET', 'POST'])
 @flask_login.login_required
@@ -492,6 +489,8 @@ def makeEdit():
         try:
             id = request.args.get('album')
             owner = getUserIdFromEmail(flask_login.current_user.id)
+            if id == '' or id is None:
+                return flask.redirect(flask.url_for('album'))
         except:
             return flask.redirect(flask.url_for('album'))
 
@@ -521,22 +520,77 @@ def makeEdit():
     return flask.redirect(flask.url_for('album'))
 
 
-# @app.route('/edit/<int:id>', methods=['GET', 'POST'])
-# @flask_login.login_required
-# def editAlbum(id):
-#     db = getMysqlConnection()
-#     conn = db['conn']
-#     cursor = db['cursor']
-#     print(cursor.execute("SELECT name FROM albums WHERE id = %s);", id))
-#     album = cursor.fetchone()[0]
-#     cursor.close()
-#     conn.close()
-#     return render_template('view.html', id=id, album=album, name=flask_login.current_user.id)
+def getComments(photoId):
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    print("SELECT text FROM comments WHERE photo_id = %s;" % str(photoId))
+    print(cursor.execute("SELECT text FROM comments WHERE photo_id = %s;", photoId))
+    rows = cursor.fetchall()
+    comments = []
+    for row in rows:
+        comments.append(row[0])
+    cursor.close()
+    conn.close()
+    return comments
+
+
+def getPhoto(dir):
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    print(cursor.execute("SELECT caption, dir, id FROM photos WHERE dir LIKE '%%%s%%';" % str(dir)))
+    row = cursor.fetchone()
+
+    userId = row[1].split("/")[1]
+    photoId = row[1].split("/")[2].split(".")[0]
+
+    comments = getComments(photoId)
+
+    photo = (row[0], str('images' + row[1]), userId, photoId, comments)
+
+    cursor.close()
+    conn.close()
+    return photo
+
+
+@app.route('/view/<int:userId>/<int:photoId>', methods=['GET', 'POST'])
+def editPhoto(userId, photoId):
+    dir = '/' + str(userId) + '/' + str(photoId)
+    photo = getPhoto(dir)
+    if request.method == 'GET':
+        if flask_login.current_user.is_authenticated:
+            return render_template('photo.html', photo=photo,
+                                   name=flask_login.current_user.id,
+                                   login=flask_login.current_user.is_authenticated)
+        else:
+            return render_template('photo.html', photo=photo,
+                                   login=flask_login.current_user.is_authenticated)
+    try:
+        comment = request.form.get('comment')
+
+    except:
+        return flask.redirect(request.path)
+
+    if flask_login.current_user.is_authenticated:
+        db = getMysqlConnection()
+        conn = db['conn']
+        cursor = db['cursor']
+
+        id = getUserIdFromEmail(flask_login.current_user.id)
+
+        print(cursor.execute("INSERT INTO comments " +
+                             "(user, photo_id, text) " +
+                             "VALUES (%s, %s, %s);", (id, photoId, comment)))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return flask.redirect(request.path)
 
 
 app.secret_key = 'super secret string'
 app.config['SESSION_TYPE'] = 'filesystem'
-
 
 if __name__ == "__main__":
     # this is invoked when in the shell  you run

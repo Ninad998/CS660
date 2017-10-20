@@ -13,7 +13,7 @@
     <form method="POST" enctype="multipart/form-data" action="/upload">
         <table border='0'>
             <tr>
-                <td>Select album:</td>
+                <td><label for="album">Select album:</label></td>
                 <td>
                     <select name="album" class="form-control" >
                         {% for id, name in album_list %}
@@ -23,15 +23,15 @@
                 </td>
             </tr>
             <tr>
-                <td>Select photo:</td>
+                <td><label for="photo">Select photo:</label></td>
                 <td><input type="file" name="photo" required class="form-control" /></td>
             </tr>
             <tr>
-                <td>Please caption:</td>
+                <td><label for="caption">Please caption:</label></td>
                 <td><input type="text" name="caption" required class="form-control" /></td>
             </tr>
             <tr>
-                <td>Tags:</td>
+                <td><label for="tags">Tags:</label></td>
                 <td><input type="text" name="tags" class="form-control" /></td>
             </tr>
         </table>
