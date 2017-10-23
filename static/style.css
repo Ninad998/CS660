@@ -7,7 +7,14 @@ body {
     display:block;
     text-align:center
 }
-comment {
+.comment {
     margin-top: 10em;
     margin-bottom: 10em;
+}
+.content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.h-scroll {
+    overflow-x: auto;
 }

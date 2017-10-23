@@ -1,34 +1,66 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <div class="row">
+        <div class="col-lg-4">
+            <table border='0'>
+                <form method="POST" action="/make">
+                    <tr>
+                        <td><label for="album">New album:</label></td>
+                        <td><input type='text' name='album' id='album' placeholder='album name' required
+                                   class="form-control"/></td>
+                    </tr>
+                    <tr>
+                        <td><input type='submit' value='Create'
+                                   class="btn btn-outline-secondary"/><br/><br/></td>
+                        <td></td>
+                    </tr>
+                </form>
+            </table>
+        </div>
+        <div class="col-lg-4">
+            <table border='0'>
+                <form method="GET" action="/view">
+                    <tr>
+                        <td>Select album:</td>
+                        <td>
+                            <select name="album" class="form-control">
+                                {% for id, name in album_list %}
+                                    <option value="{{ id }}"{% if loop.first %} SELECTED{% endif %}>{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='submit' value='View' class="btn btn-outline-primary"/></td>
+                        <td></td>
+                    </tr>
+                </form>
+            </table>
+        </div>
+        <div class="col-lg-4">
+            <table border='0'>
+                <form method="GET" action="/tag">
+                    <input type="hidden" value="tagme" id="type" name="type">
+                    <tr>
+                        <td>Select tag:</td>
+                        <td>
+                            <select name="tag" class="form-control">
+                                {% for name in tag_list %}
+                                    <option value="{{ name }}"{% if loop.first %} SELECTED{% endif %}>{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='submit' value='View' class="btn btn-outline-primary"/></td>
+                        <td></td>
+                    </tr>
+                </form>
+            </table>
+        </div>
+    </div>
 
-    <table border='0'>
-        <form method="POST" action="/make">
-            <tr>
-                <td><label for="album">New album:</label></td>
-                <td><input type='text' name='album' id='album' placeholder='album name' required class="form-control" /></td>
-            </tr>
-            <tr>
-                <td><input type='submit' name='submit' value='Create' class="btn btn-outline-secondary" /><br/><br/></td>
-                <td></td>
-            </tr>
-        </form>
-        <form method="GET" action="/view">
-            <tr>
-                <td>Select album:</td>
-                <td>
-                    <select name="album" class="form-control" >
-                        {% for id, name in album_list %}
-                            <option value="{{ id }}"{% if loop.first %} SELECTED{% endif %}>{{ name }}</option>
-                        {% endfor %}
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td><input type='submit' name='submit' value='View' class="btn btn-outline-primary" /></td>
-                <td></td>
-            </tr>
-        </form>
-    </table>
+
 
 {% endblock %}

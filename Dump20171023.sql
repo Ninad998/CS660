@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS `photoshare` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `photoshare`;
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
 -- Host: localhost    Database: db_assignment
@@ -97,6 +99,7 @@ CREATE TABLE `friends` (
 
 LOCK TABLES `friends` WRITE;
 /*!40000 ALTER TABLE `friends` DISABLE KEYS */;
+INSERT INTO `friends` VALUES (7,1),(1,7),(1,8),(7,8),(11,8),(7,9),(8,9),(10,9),(11,9),(8,10),(9,10),(1,11);
 /*!40000 ALTER TABLE `friends` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -178,7 +181,7 @@ CREATE TABLE `tags` (
 
 LOCK TABLES `tags` WRITE;
 /*!40000 ALTER TABLE `tags` DISABLE KEYS */;
-INSERT INTO `tags` VALUES (7,'asd'),(7,'asd1'),(7,'asd2'),(7,'asd3');
+INSERT INTO `tags` VALUES (7,'asd'),(7,'asd1'),(7,'asd2'),(7,'asd3'),(10,'asd2'),(10,'asd3'),(11,'asd'),(11,'asd1'),(11,'asd3'),(12,'asd3'),(13,'asd'),(13,'asd1');
 /*!40000 ALTER TABLE `tags` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -199,7 +202,7 @@ CREATE TABLE `users` (
   `gender` enum('M','F','O') NOT NULL,
   `password` varchar(45) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -208,7 +211,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'asd','asd','test@bu.edu','2016-12-12','asd','M','asd'),(7,'asd','asd','test1@bu.edu','2016-12-12','asd','M','asd');
+INSERT INTO `users` VALUES (1,'asd','asd','test@bu.edu','2016-12-12','asd','M','asd'),(7,'asd','asd','test1@bu.edu','2016-12-12','asd','M','asd'),(8,'abc','abc','a@a.com','2016-10-02','abc','F','abc'),(9,'pqr','pqr','p@p.com','2010-02-03','pqr','F','pqr'),(10,'lmn','lmn','l@l.com','2009-10-02','lmn','M','lmn'),(11,'aaa','aaa','a@a.com','2012-01-01','aaa','M','aaa');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -221,4 +224,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-18 14:55:02
+-- Dump completed on 2017-10-23  9:14:17

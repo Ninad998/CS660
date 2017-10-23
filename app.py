@@ -22,8 +22,8 @@ login_manager.init_app(app)
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
-# app.config['MYSQL_DATABASE_DB'] = 'photoshare'
-app.config['MYSQL_DATABASE_DB'] = 'db_assignment'
+app.config['MYSQL_DATABASE_DB'] = 'photoshare'
+# app.config['MYSQL_DATABASE_DB'] = 'db_assignment'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
 mysql.init_app(app)
@@ -108,6 +108,49 @@ def checkEmail(email):
         cursor.close()
         conn.close()
         return False
+
+
+def findTopUsers():
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    print(cursor.execute("SELECT email, id FROM users;"))
+    users = cursor.fetchall()
+    contrib = []
+    for user, id in users:
+        count = 0
+
+        print(cursor.execute("SELECT count(*) FROM photos INNER JOIN albums "
+                             "ON photos.album = albums.id "
+                             "AND albums.owner = %s;", id))
+        count = count + cursor.fetchone()[0]
+
+        print(cursor.execute("SELECT count(*) FROM comments WHERE user = %s;", id))
+        count = count + cursor.fetchone()[0]
+
+        contrib.append((user, count))
+
+    contrib = sorted(contrib, key=lambda x: x[1], reverse=True)[:10]
+
+    users = []
+    for user, id in contrib:
+        users.append(user)
+
+    cursor.close()
+    conn.close()
+
+    return users
+
+@app.route('/top', methods=['GET'])
+def top10Users():
+    users = findTopUsers()
+    if flask_login.current_user.is_authenticated:
+        return render_template('top.html', users=users, name=flask_login.current_user.id,
+                               login=flask_login.current_user.is_authenticated)
+
+    else:
+        return render_template('top.html', users=users,
+                               login=flask_login.current_user.is_authenticated)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -315,7 +358,7 @@ def getUserIdFromEmail(email):
     db = getMysqlConnection()
     conn = db['conn']
     cursor = db['cursor']
-    cursor.execute("SELECT id  FROM Users WHERE email = %s;", email)
+    cursor.execute("SELECT id FROM Users WHERE email = %s;", email)
     id = cursor.fetchone()[0]
     cursor.close()
     conn.close()
@@ -425,11 +468,29 @@ def upload():
                         login=flask_login.current_user.is_authenticated)
 
 
-@app.route('/album', methods=['GET', 'POST'])
+def getTagList():
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+
+    print(cursor.execute("SELECT word FROM tags;"))
+
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    tags = []
+    for row in rows:
+        tags.append(row[0])
+    return tags
+
+
+@app.route('/album', methods=['GET'])
 @flask_login.login_required
 def album():
-    album = getAlbumList(flask_login.current_user.id)
-    return render_template('album.html', album_list=album, name=flask_login.current_user.id,
+    albums = getAlbumList(flask_login.current_user.id)
+    tags = getTagList()
+    return render_template('album.html', album_list=albums, tag_list=tags,
+                           name=flask_login.current_user.id,
                            login=flask_login.current_user.is_authenticated)
 
 
@@ -466,7 +527,7 @@ def getAlbumName(id):
     return name
 
 
-def getPhotos(album):
+def getPhotosFromAlbum(album):
     db = getMysqlConnection()
     conn = db['conn']
     cursor = db['cursor']
@@ -495,7 +556,7 @@ def makeEdit():
             return flask.redirect(flask.url_for('album'))
 
         album = getAlbumName(id)
-        photos = getPhotos(id)
+        photos = getPhotosFromAlbum(id)
         return render_template('view.html', album_name=album, album_id=id, photos=photos,
                                name=flask_login.current_user.id,
                                login=flask_login.current_user.is_authenticated)
@@ -518,6 +579,68 @@ def makeEdit():
     cursor.close()
     conn.close()
     return flask.redirect(flask.url_for('album'))
+
+
+def getPhotosFromTag(tag, email):
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    cursor.execute("SELECT caption, dir FROM photos WHERE "
+                   "id IN " +
+                   "(SELECT photoId FROM tags WHERE word LIKE '%%%s%%') "
+                   "AND album IN "
+                   "(SELECT id FROM albums WHERE owner = %s);" % (tag, getUserIdFromEmail(email)))
+
+    rows = cursor.fetchall()
+    photos = []
+    for row in rows:
+        userId = row[1].split("/")[1]
+        photoId = row[1].split("/")[2].split(".")[0]
+        photos.append((row[0], str('images' + row[1]), userId, photoId))
+    cursor.close()
+    conn.close()
+    return photos
+
+
+def getAllPhotosFromTag(tag):
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    cursor.execute("SELECT caption, dir FROM photos WHERE id IN " +
+                   "(SELECT photoId FROM tags WHERE word LIKE '%%%s%%');" % tag)
+    rows = cursor.fetchall()
+    photos = []
+    for row in rows:
+        userId = row[1].split("/")[1]
+        photoId = row[1].split("/")[2].split(".")[0]
+        photos.append((row[0], str('images' + row[1]), userId, photoId))
+    cursor.close()
+    conn.close()
+    return photos
+
+
+@app.route('/tag', methods=['GET'])
+@flask_login.login_required
+def viewTag():
+    try:
+        tag = request.args.get('tag')
+        type = request.args.get('type')
+        if tag == '' or tag is None:
+            return flask.redirect(flask.url_for('album'))
+    except:
+        return flask.redirect(flask.url_for('album'))
+
+    if type == 'tagme':
+        photos = getPhotosFromTag(tag, flask_login.current_user.id)
+        return render_template('tag.html', tag_name=tag, photos=photos, viewall=False,
+                               name=flask_login.current_user.id,
+                               login=flask_login.current_user.is_authenticated)
+    else:
+        photos = getAllPhotosFromTag(tag)
+        print(photos)
+        return render_template('tag.html', tag_name=tag, photos=photos, viewall=True,
+                               name=flask_login.current_user.id,
+                               login=flask_login.current_user.is_authenticated)
 
 
 def getComments(photoId):
@@ -587,6 +710,131 @@ def editPhoto(userId, photoId):
         cursor.close()
         conn.close()
         return flask.redirect(request.path)
+
+
+def findTopTags():
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    print(cursor.execute("SELECT photoId, word, count(*) AS ct FROM tags " +
+                         "GROUP BY word ORDER BY ct, word DESC;"))
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    tags = []
+    for photoId, word, ct in rows:
+        tags.append(word)
+
+    tags = tags[:10]
+
+    return tags
+
+
+def getEmailFromUserId(id):
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    cursor.execute("SELECT email FROM Users WHERE id = %s;", id)
+    email = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+    return email
+
+def findFriends(email):
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    id = getUserIdFromEmail(email)
+    print(cursor.execute("SELECT friendId AS frid, count(friendId) AS ct FROM friends " +
+                         "WHERE userId IN (SELECT friendId FROM friends WHERE userId = %s) " +
+                         "GROUP BY friendId HAVING ct > 1 " +
+                         "AND frid NOT IN (SELECT friendId FROM friends WHERE userId = %s) " +
+                         "ORDER BY ct;", (id, id)))
+
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    friends = []
+    for friendId, ct in rows:
+        friends.append(getEmailFromUserId(friendId))
+
+    return friends
+
+
+def getPhotoFromId(photoId):
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    print(cursor.execute("SELECT caption, dir, id FROM photos WHERE id=%s;", photoId))
+    row = cursor.fetchone()
+
+    userId = row[1].split("/")[1]
+    photoId = row[1].split("/")[2].split(".")[0]
+
+    comments = getComments(photoId)
+
+    photo = (row[0], str('images' + row[1]), userId, photoId, comments)
+
+    cursor.close()
+    conn.close()
+    return photo
+
+
+def getRecommendedPhotos():
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+    print(cursor.execute("SELECT photoid, count(photoId) AS ctr FROM tags " +
+                         "JOIN " +
+                         "(SELECT word FROM tags GROUP BY word ORDER BY count(word) DESC limit 5) t1 " +
+                         "ON " +
+                         "tags.word = t1.word " +
+                         "GROUP BY photoId ORDER BY ctr DESC;"))
+
+    rows = cursor.fetchall()
+
+    photoIdList = []
+    skipnext = False
+    for i in range(len(rows)):
+        if not skipnext:
+            if i < (len(rows) - 1):
+                if rows[i][1] == rows[i + 1][1]:
+                    print(cursor.execute("SELECT photoId, count(photoId) FROM tags WHERE " +
+                                         "photoId = %s or photoId = %s " +
+                                         "GROUP BY photoId " +
+                                         "ORDER BY count(photoId) ASC;", (rows[i][0], rows[i][0])))
+                    conflict = cursor.fetchone()
+                    photoIdList.append(conflict[0])
+
+                    skipnext = True
+                else:
+                    photoIdList.append(rows[i][0])
+            else:
+                photoIdList.append(rows[i][0])
+
+        else:
+            skipnext = False
+
+    cursor.close()
+    conn.close()
+
+    photos = []
+    for id in photoIdList:
+        photos.append(getPhotoFromId(id))
+
+    return photos
+
+
+@app.route('/explore', methods=['GET'])
+def explore():
+    tags = findTopTags()
+    users = findFriends(flask_login.current_user.id)
+    photos = getRecommendedPhotos()
+    return render_template('explore.html', tags=tags, users=users, photos=photos,
+                           name=flask_login.current_user.id,
+                           login=flask_login.current_user.is_authenticated)
 
 
 app.secret_key = 'super secret string'

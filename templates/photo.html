@@ -24,10 +24,10 @@
                         <form action='{{ request.path }}' method='POST' id="photocomment" class="center-block">
                             <div class="form-group">
                                 <label for="comment">Add comment</label><br/>
-                                <textarea name='comment' id='comment' placeholder='add comment'
+                                <textarea name='comment' class="form-control comment" placeholder='add comment'
                                           form="photocomment" rows="3" required></textarea>
                             </div>
-                            <input type='submit' name='submit' value='Post' class="btn btn-outline-primary"/>
+                            <input type='submit' value='Post' class="btn btn-outline-primary"/>
                         </form>
                     {% endif %}
                 </div>

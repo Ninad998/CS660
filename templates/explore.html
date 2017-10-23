@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row content h-scroll">
+        <div>
+            Popular Tags:
+        </div>
+        {% for tag in tags %}
+            <div style="padding-left:2em">
+                <a href="/tag?type=tagme&tag={{ tag }}">{{ tag }}</a>
+            </div>
+        {% endfor %}
+    </div>
+    <br/>
+    <div class="row content h-scroll">
+        <div>
+            Popular Users:
+        </div>
+        {% for user in users %}
+            <div style="padding-left:2em">
+                <a href="/user?id={{ user }}">{{ user }}</a>
+            </div>
+        {% endfor %}
+    </div>
+    <br/>
+    <br/>
+    <div class="row">
+        {% for photo in photos %}
+            <div class="col-lg-3">
+                <a href="/view/{{ photo[2] }}/{{ photo[3] }}">
+                    <div class="center-block">
+                        <img src="{{ url_for('static', filename = photo[1]) }}" class="rounded" width="300"/><br/>
+                        Caption: {{ photo[0] }} <br/><br/>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
