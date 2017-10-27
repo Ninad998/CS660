@@ -1245,6 +1245,5 @@ app.secret_key = 'super secret string'
 app.config['SESSION_TYPE'] = 'filesystem'
 
 if __name__ == "__main__":
-    # this is invoked when in the shell  you run
-    # $ python app.py
-    app.run(port=5000, debug=False, threaded=True)
+    app.jinja_env.cache = {}
+    app.run(port=5000, debug=True, threaded=True)
