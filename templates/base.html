@@ -25,7 +25,9 @@
             integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
             crossorigin="anonymous"></script>
 
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"/>
+    <script src="https://use.fontawesome.com/ab1599ef4a.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for("static", filename="style.css") }}"/>
 </head>
 <body>
 
@@ -42,26 +44,38 @@
                 <a class="nav-link" href="/explore">Explore</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href='/album'>Make/Edit Album</a>
+                <a class="nav-link" href="/album">Make/Edit Album</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href='/upload'>Upload a Photo</a>
+                <a class="nav-link" href="/upload">Upload a Photo</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href='/profile'>Profile</a>
+                <a class="nav-link" href="/friendlist">Friend List</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href='/logout'>Logout</a>
+                <a class="nav-link" href="/profile">Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
             </li>
         {% else %}
             <li class="nav-item">
-                <a class="nav-link" href='/login'>Login</a>
+                <a class="nav-link" href="/login">Login</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href='/register'>Register</a>
+                <a class="nav-link" href="/register">Register</a>
             </li>
         {% endif %}
     </ul>
+    <form class="form-inline my-2 my-lg-0" method="GET" action="/search">
+        <input class="form-control mr-sm-2" type="search" name="search" placeholder="search" aria-label="Search">
+        <select name="type" class="form-control mr-sm-2">
+            <option value="tag" SELECTED>Tag</option>
+            <option value="comment">Comments</option>
+            <option value="email">Email</option>
+        </select>
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
 </nav>
 
 <hr>

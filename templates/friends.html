@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div>
+        Friends:
+    </div>
+    <br/>
+    {% if users %}
+        <ol>
+            {% for user in users %}
+                <li>
+                    User Email: <a href="/user?id={{ user }}">{{ user }}</a>
+                </li>
+            {% endfor %}
+        </ol>
+    {% endif %}
+
+{% endblock %}

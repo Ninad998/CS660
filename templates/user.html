@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="title">
+        {% if login %}
+            <h1>Add as friend?</h1>
+        {% else %}
+            <h1>User profile</h1>
+        {% endif %}
+    </div>
+    <div id="content">
+        <form method="POST" action="{{ url_for("friend") }}">
+            <table border="0">
+                <tr>
+                    <td><label for="email1">Email:</label></td>
+                    <td>
+                        <input type="text" name="email1" id="email1" value="{{ user["email"] }}" disabled
+                               class="form-control"/>
+                        <input type="hidden" name="email" id="email" value="{{ user["email"] }}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="password">Password:</label></td>
+                    <td>
+                        <input type="password" name="password" id="password"
+                               value="{{ user["password"] }}" required disabled class="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="firstname">First Name:</label></td>
+                    <td>
+                        <input type="text" name="firstname" id="firstname"
+                               value="{{ user["firstname"] }}"  required disabled class="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="lastname">Last Name:</label></td>
+                    <td>
+                        <input type="text" name="lastname" id="lastname"
+                               value="{{ user["lastname"] }}" required disabled class="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="dateOfBirth">Date of Birth:</label></td>
+                    <td>
+                        <input type="text" name="dateOfBirth" id="dateOfBirth"
+                               value="{{ user["dateOfBirth"] }}" required disabled class="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="homeTown">Home Town:</label></td>
+                    <td>
+                        <input type="text" name="homeTown" id="homeTown"
+                               value="{{ user["homeTown"] }}" disabled class="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="gender">Gender:</label></td>
+                    <td>
+                        <input type="radio" name="gender" value="M"
+                                {% if user["gender"] == "M" %} checked {% endif %} disabled/> Male<br>
+                        <input type="radio" name="gender" value="F"
+                                {% if user["gender"] == "F" %} checked {% endif %} disabled/> Female<br>
+                        <input type="radio" name="gender" value="O"
+                                {% if user["gender"] == "O" %} checked {% endif %} disabled/> Other
+                    </td>
+                </tr>
+            </table>
+
+            <br/>
+
+            {% if login %}
+                {% if friendCheck %}
+                    <p><input type="submit" value="Already Friends" disabled class="btn btn-outline-primary"/></p>
+                {% else %}
+                    <p><input type="submit" value="Friend" class="btn btn-outline-primary"/></p>
+                {% endif %}
+            {% endif %}
+        </form>
+    </div>
+{% endblock %}

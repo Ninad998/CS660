@@ -2,24 +2,33 @@
 
 {% block content %}
     <div class="row content">
-        <h4>Photos with '{{ tag_name }}' tag</h4><br/>
+        <h4>Photos with "{{ tag_name }}" tag</h4><br/>
         <div class="btn-group btn-toggle" style="padding-left:5em">
-            <form action='/tag' method='GET'>
+            <form action="/tag" method="GET">
                 <input type="hidden" value="tagme" id="type" name="type">
+
                 <input type="hidden" value="{{ tag_name }}" id="tag" name="tag">
+
                 {% if viewall %}
-                    <input type='submit' value='View your photo' class="btn btn-default"/>
+                    <input type="submit" value="View your photo"
+                            {% if not login %} disabled {% endif %} class="btn btn-default"/>
                 {% else %}
-                    <input type='submit' value='View your photo' class="btn btn-primary active"/>
+                    <input type="submit" value="View your photo"
+                            {% if not login %} disabled {% endif %} class="btn btn-primary active"/>
                 {% endif %}
             </form>
-            <form action='/tag' method='GET'>
+
+            <form action="/tag" method="GET">
                 <input type="hidden" value="tagall" id="type" name="type">
+
                 <input type="hidden" value="{{ tag_name }}" id="tag" name="tag">
+
                 {% if viewall %}
-                    <input type='submit' value='View all photo' class="btn btn-primary active"/>
+                    <input type="submit" value="View all photo"
+                            {% if not login %} disabled {% endif %} class="btn btn-primary active"/>
                 {% else %}
-                    <input type='submit' value='View all photo' class="btn btn-default"/>
+                    <input type="submit" value="View all photo"
+                            {% if not login %} disabled {% endif %} class="btn btn-default"/>
                 {% endif %}
             </form>
         </div>
@@ -33,7 +42,7 @@
                 <div class="col-lg-3">
                     <a href="/view/{{ photo[2] }}/{{ photo[3] }}">
                         <div class="center-block">
-                            <img src="{{ url_for('static', filename = photo[1]) }}" class="rounded" width="300"/><br/>
+                            <img src="{{ url_for("static", filename = photo[1]) }}" class="rounded" width="300"/><br/>
                             Caption: {{ photo[0] }} <br/><br/>
                         </div>
                     </a>
@@ -41,6 +50,5 @@
             {% endfor %}
         </div>
     {% endif %}
-    </div>
 
 {% endblock %}

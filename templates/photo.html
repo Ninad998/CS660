@@ -3,36 +3,65 @@
 {% block content %}
     {% if photo %}
         <div class="row">
-            <div class="col-lg-1"></div>
-            <div class="col-lg-8">
+            <div class="col-lg-5">
                 <div class="center-block">
-                    <img src="{{ url_for('static', filename = photo[1]) }}" width="500"/>
+                    <img src="{{ url_for("static", filename = photo[1]) }}" width="500"/>
                     <br/>
                     Caption: {{ photo[0] }}
-                    <br/>
-                    <br/>
-                    Comments:
-                    {% for comment in photo[4] %}
-                        <div class="col-sm-6 border rounded center-block">
-                            {{ comment }}
+                </div>
+                <br/>
+                <div style="padding-left:4em">
+                    <div class="row">
+                        <div style="padding-right:2em">{{ noOfLikes }}</div>
+                        {% if login %}
+                            <form action="{{ url_for("like") }}" method="POST" id="like">
+                                <input type="hidden" value="{{ photo[5] }}" name="photoId"/>
+                                {% if likes %}
+                                    <button type="submit" class="btn btn-outline-primary" disabled
+                                            aria-label="Like">
+                                        <span class="fa fa-thumbs-o-up"></span> Liked
+                                    </button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-outline-primary" aria-label="Like">
+                                        <span class="fa fa-thumbs-o-up"></span> Like
+                                    </button>
+                                {% endif %}
+                            </form>
+                        {% else %}
+                            Likes
+                        {% endif %}
+                    </div>
+                </div>
+                <br/>
+            </div>
+            <div class="col-lg-5">
+                Tags:
+                <div class="row" style="padding-left:1em">
+                    {% for tag in photo[6] %}
+                        <div style="padding-right:2em">
+                            <a href="/tag?type=tagall&tag={{ tag }}">{{ tag }}</a>
                         </div>
                     {% endfor %}
-                    <br/>
-                    <br/>
-                    <br/>
-                    {% if login %}
-                        <form action='{{ request.path }}' method='POST' id="photocomment" class="center-block">
-                            <div class="form-group">
-                                <label for="comment">Add comment</label><br/>
-                                <textarea name='comment' class="form-control comment" placeholder='add comment'
-                                          form="photocomment" rows="3" required></textarea>
-                            </div>
-                            <input type='submit' value='Post' class="btn btn-outline-primary"/>
-                        </form>
-                    {% endif %}
                 </div>
+                <br/>
+                Comments:
+                {% for comment in photo[4] %}
+                    <div class="col-sm-6 border rounded comment">
+                        {{ comment }}
+                    </div>
+                {% endfor %}
+                {% if login %}
+                    <form action="{{ request.path }}" method="POST" id="photocomment">
+                        <div class="form-group">
+                            <input type="hidden" value="{{ photo[5] }}" name="photoId"/>
+                            <label for="comment">Add comment</label><br/>
+                            <textarea name="comment" class="form-control" placeholder="add comment"
+                                      form="photocomment" rows="3" required></textarea>
+                        </div>
+                        <input type="submit" value="Post" class="btn btn-outline-primary"/>
+                    </form>
+                {% endif %}
             </div>
-            <div class="col-lg-1"></div>
         </div>
     {% endif %}
 

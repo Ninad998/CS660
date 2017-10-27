@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div>
+        <h2>Search Results</h2>
+    </div>
+    {% if tagSearch %}
+        <div>
+            Tags Results:
+        </div>
+        <br/>
+        {% for tag in tags %}
+            <div style="padding-left:2em">
+                <a href="/tag?type=tagall&tag={{ tag }}">{{ tag }}</a>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if userSearch %}
+        <div>
+            User Results:
+        </div>
+        <br/>
+        <ol>
+            {% for user in users %}
+                <li>
+                    User Email: <a href="/user?id={{ user }}">{{ user }}</a>
+                </li>
+            {% endfor %}
+        </ol>
+    {% endif %}
+    {% if commentSearch %}
+        <div>
+            Caption Results:
+        </div>
+        <br/>
+        <div class="row">
+            {% for photo in photos %}
+                <div class="col-lg-3">
+                    <a href="/view/{{ photo[2] }}/{{ photo[3] }}">
+                        <div class="center-block">
+                            <img src="{{ url_for("static", filename = photo[1]) }}" class="rounded" width="300"/><br/>
+                            Caption: {{ photo[0] }} <br/><br/>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+{% endblock %}
