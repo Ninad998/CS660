@@ -74,7 +74,7 @@ def getAllPhotos():
     conn = db['conn']
     cursor = db['cursor']
 
-    cursor.execute("SELECT caption, dir FROM photos WHERE album;")
+    cursor.execute("SELECT caption, dir FROM photos WHERE album ORDER BY dateofcreation DESC;")
 
     rows = cursor.fetchall()
     photos = []
@@ -143,6 +143,8 @@ def findTopUsers():
     users = []
     for user, id in contrib:
         users.append(user)
+
+    print(users)
 
     cursor.close()
     conn.close()
@@ -467,9 +469,11 @@ def upload():
         i = 1
         for f in listOfFiles:
             currentfile = f.split(".")[-2]
-            if i > int(currentfile) + 1:
+            if i > int(currentfile):
                 pass
-            i = int(currentfile) + 1
+            else:
+                i = int(currentfile) + 1
+
 
         file.save(os.path.join(directory + name, filename))
         source = directory + name + "/" + filename
@@ -764,7 +768,6 @@ def getPhoto(dir):
         tags.append(getTag(tagId))
 
     photo = (caption, dir, userId, photoNo, comments, photoId, tags)
-
     cursor.close()
     conn.close()
     return photo
@@ -798,9 +801,9 @@ def checkLike(photoId, userId):
         return False
 
 
-@app.route('/view/<int:userId>/<int:photoId>', methods=['GET', 'POST'])
-def editPhoto(userId, photoId):
-    dir = '/' + str(userId) + '/' + str(photoId)
+@app.route('/view/<int:userId>/<int:photoNo>', methods=['GET', 'POST'])
+def editPhoto(userId, photoNo):
+    dir = '/' + str(userId) + '/' + str(photoNo)
     photo = getPhoto(dir)
     noOfLikes = getLikeNumber(photo[5])
     if request.method == 'GET':
@@ -1037,6 +1040,9 @@ def friend():
         cursor.close()
         conn.close()
         if flask_login.current_user.is_authenticated:
+            if user['email'] == flask_login.current_user.id:
+                return flask.redirect(flask.url_for('profile'))
+
             friendCheck = getFriendResult(flask_login.current_user.id, user['email'])
             return render_template('user.html', user=user, friendCheck=friendCheck,
                                    name=flask_login.current_user.id,
