@@ -2,23 +2,29 @@
 
 {% block content %}
     <h1>Sign In</h1>
-    <form action="login" method="POST">
-        <table border="0">
-            <tr>
-                <td><label for="email">Email:</label></td>
-                <td><input type="text" name="email" id="email" placeholder="email" class="form-control" /></td>
-            </tr>
-            <tr>
-                <td><label for="password">Password:</label></td>
-                <td><input type="password" name="password" id="password" placeholder="password" class="form-control" /></td>
-            </tr>
-        </table>
-        <br/>
-        <p>
-            <input type="submit" value="Login" class="btn btn-outline-primary" />
-        </p>
-    </form>
-    <form action="/register" method="GET">
-        <input type="submit" value="Register" name="submit" class="btn btn-outline-secondary" />
-    </form>
+    <div class="well bs-component col-lg-4">
+        <form action="login" method="POST">
+            <table class="table table-responsive">
+                <tr>
+                    <td><label for="email">Email:</label></td>
+                    <td><input type="text" name="email" id="email" placeholder="email" class="form-control"/></td>
+                </tr>
+                <tr>
+                    <td><label for="password">Password:</label></td>
+                    <td><input type="password" name="password" id="password" placeholder="password"
+                               class="form-control"/></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            <p>
+                <input type="submit" value="Login" class="btn btn-outline-primary"/>
+            </p>
+        </form>
+        <form action="/register" method="GET">
+            <input type="submit" value="Register" name="submit" class="btn btn-outline-secondary"/>
+        </form>
+    </div>
 {% endblock %}

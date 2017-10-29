@@ -6,13 +6,13 @@
     </div>
     <br/>
     {% if users %}
-        <ol>
+        <ul class="list-group col-lg-4">
             {% for user in users %}
-                <li>
+                <li class="list-group-item">
                     User Email: <a href="/user?id={{ user }}">{{ user }}</a>
                 </li>
             {% endfor %}
-        </ol>
+        </ul>
     {% endif %}
 
 {% endblock %}

@@ -13,9 +13,9 @@
     <div class="title">
         <h1>Enter your information below</h1>
     </div>
-    <div id="content">
+    <div id="content" class="well bs-component col-lg-5">
         <form method="POST" action="{{ url_for("profile") }}">
-            <table border="0">
+            <table class="table table-responsive">
                 <tr>
                     <td><label for="email1">Email:</label></td>
                     <td>
@@ -68,12 +68,14 @@
                         <input type="radio" name="gender" value="O"
                                 {% if user["gender"] == "O" %} checked {% endif %} /> Other
                     </td>
+                </tr><tr>
+                    <td></td>
+                    <td></td>
                 </tr>
             </table>
-
-            <br/>
-
-            <p><input type="submit" value="Update" class="btn btn-outline-secondary" /></p>
+            <p>
+                <input type="submit" value="Update" class="btn btn-outline-secondary" />
+            </p>
         </form>
     </div>
 {% endblock %}

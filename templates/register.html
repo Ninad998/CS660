@@ -13,9 +13,9 @@
     <div class="title">
         <h1>Enter your information below</h1>
     </div>
-    <div id="content">
+    <div id="content" class="well bs-component col-lg-5">
         <form method="POST" action="{{ url_for("register_user") }}">
-            <table border="0">
+            <table class="table table-responsive">
                 <tr>
                     <td>Email:</td>
                     <td><input type="text" name="email" id="email" placeholder="email" required class="form-control" /></td>
@@ -48,11 +48,14 @@
                         <input type="radio" name="gender" value="O" /> Other
                     </td>
                 </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
             </table>
-
-            <br/>
-
-            <p><input type="submit" value="Register" class="btn btn-outline-primary" /></p>
+            <p>
+                <input type="submit" value="Register" class="btn btn-outline-primary" />
+            </p>
         </form>
     </div>
 {% endblock %}

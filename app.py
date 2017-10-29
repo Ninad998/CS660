@@ -893,9 +893,9 @@ def findFriends(email):
     id = getUserIdFromEmail(email)
 
     cursor.execute("SELECT friendId AS frid, count(friendId) AS ct FROM friends " +
-                   "WHERE userId IN (SELECT friendId FROM friends WHERE userId=%s) " +
-                   "GROUP BY friendId HAVING ct > 1 " +
-                   "AND frid NOT IN (SELECT friendId FROM friends WHERE userId=%s) " +
+                   "WHERE friendId NOT IN (SELECT friendId FROM friends WHERE userId=%s) " +
+                   "AND userId IN (SELECT friendId FROM friends WHERE userId=%s) " +
+                   "GROUP BY friendId " +
                    "ORDER BY ct;", (id, id))
 
     rows = cursor.fetchall()
@@ -904,6 +904,8 @@ def findFriends(email):
 
     friends = []
     for friendId, ct in rows:
+        if friendId == id:
+            continue
         friends.append(getEmailFromUserId(friendId))
 
     return friends
@@ -941,22 +943,26 @@ def getPhotoFromId(photoId):
     return photo
 
 
-def getRecommendedPhotos():
+def getRecommendedPhotos(email):
     db = getMysqlConnection()
     conn = db['conn']
     cursor = db['cursor']
 
     cursor.execute("SELECT photoid, count(photoId) AS ctr FROM phototags " +
                    "JOIN " +
-                   "(SELECT tagId FROM phototags GROUP BY tagId ORDER BY count(tagId) DESC limit 5) t1 " +
+                   "(SELECT tagId FROM phototags WHERE photoId IN " +
+                   "(SELECT id FROM photos WHERE album IN " +
+                   "(SELECT id FROM albums WHERE owner=%s)) "
+                   "GROUP BY tagId ORDER BY count(tagId) DESC limit 5) t1 " +
                    "ON " +
                    "phototags.tagId = t1.tagId " +
-                   "GROUP BY photoId ORDER BY ctr DESC;")
+                   "GROUP BY photoId ORDER BY ctr DESC;", getUserIdFromEmail(email))
 
     rows = cursor.fetchall()
 
     photoIdList = []
     skipnext = False
+
     for i in range(len(rows)):
         if not skipnext:
             if i < (len(rows) - 1):
@@ -964,10 +970,16 @@ def getRecommendedPhotos():
                     cursor.execute("SELECT photoId, count(photoId) FROM phototags WHERE " +
                                    "photoId=%s or photoId=%s " +
                                    "GROUP BY photoId " +
-                                   "ORDER BY count(photoId) ASC;", (rows[i][0], rows[i][0]))
+                                   "ORDER BY count(photoId) ASC;", (rows[i][0], rows[i + 1][0]))
 
-                    conflict = cursor.fetchone()
-                    photoIdList.append(conflict[0])
+                    intermediateRows = cursor.fetchall()
+
+                    if intermediateRows[0][1] == intermediateRows[1][1]:
+                        photoIdList.append(intermediateRows[0][0])
+                        photoIdList.append(intermediateRows[1][0])
+
+                    else:
+                        photoIdList.append(intermediateRows[0][0])
 
                     skipnext = True
                 else:
@@ -992,7 +1004,7 @@ def getRecommendedPhotos():
 def explore():
     tags = findTopTags()
     users = findFriends(flask_login.current_user.id)
-    photos = getRecommendedPhotos()
+    photos = getRecommendedPhotos(flask_login.current_user.id)
     return render_template('explore.html', tags=tags, users=users, photos=photos,
                            name=flask_login.current_user.id,
                            login=flask_login.current_user.is_authenticated)
@@ -1092,6 +1104,8 @@ def like():
         return flask.redirect(flask.url_for('index'))
 
     try:
+        userId = request.form.get('userId')
+        photoNo = request.form.get('photoNo')
         photoId = request.form.get('photoId')
 
     except ValueError:
@@ -1109,7 +1123,8 @@ def like():
     conn.commit()
     cursor.close()
     conn.close()
-    return flask.redirect(flask.url_for('index'))
+    url = "/view/" + str(userId) + "/" + str(photoNo)
+    return flask.redirect(url)
 
 
 def searchComment(comment):
@@ -1117,15 +1132,13 @@ def searchComment(comment):
     conn = db['conn']
     cursor = db['cursor']
 
-    cursor.execute("SELECT photoId FROM comments WHERE text LIKE '%%%s%%';" % comment)
+    cursor.execute("SELECT user FROM comments WHERE text LIKE '%%%s%%';" % comment)
 
     rows = cursor.fetchall()
 
     results = []
     for row in rows:
-        results.append(getPhotoFromId(row[0]))
-
-    print(results)
+        results.append(getEmailFromUserId(row[0]))
 
     cursor.close()
     conn.close()
@@ -1140,6 +1153,8 @@ def searchEmail(email):
     cursor.execute("SELECT email FROM users WHERE email LIKE '%%%s%%';" % email)
 
     rows = cursor.fetchall()
+
+    print(rows)
 
     results = []
     for row in rows:
@@ -1176,11 +1191,11 @@ def search():
     if searchType == 'comment':
         result = searchComment(query)
         if flask_login.current_user.is_authenticated:
-            return render_template('search.html', photos=result, name=flask_login.current_user.id,
+            return render_template('search.html', users=result, name=flask_login.current_user.id,
                                    tagSearch=False, userSearch=False, commentSearch=True,
                                    login=flask_login.current_user.is_authenticated)
         else:
-            return render_template('search.html', photos=result,
+            return render_template('search.html', users=result,
                                    tagSearch=False, userSearch=False, commentSearch=True,
                                    login=flask_login.current_user.is_authenticated)
 
@@ -1251,5 +1266,5 @@ app.secret_key = 'super secret string'
 app.config['SESSION_TYPE'] = 'filesystem'
 
 if __name__ == "__main__":
-    app.jinja_env.cache = {}
+    # app.jinja_env.cache = {}
     app.run(port=5000, debug=True, threaded=True)

@@ -37,13 +37,13 @@
     <br/>
 
     {% if photos %}
-        <div class="row">
+        <div class="row well bs-component">
             {% for photo in photos %}
                 <div class="col-lg-3">
                     <a href="/view/{{ photo[2] }}/{{ photo[3] }}">
                         <div class="center-block">
                             <img src="{{ url_for("static", filename = photo[1]) }}" class="rounded" width="300"/><br/>
-                            Caption: {{ photo[0] }} <br/><br/>
+                            {{ photo[0] }} <br/><br/>
                         </div>
                     </a>
                 </div>

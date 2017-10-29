@@ -8,9 +8,9 @@
             <h1>User profile</h1>
         {% endif %}
     </div>
-    <div id="content">
+    <div id="content" class="well bs-component col-lg-5">
         <form method="POST" action="{{ url_for("friend") }}">
-            <table border="0">
+            <table class="table table-responsive">
                 <tr>
                     <td><label for="email1">Email:</label></td>
                     <td>
@@ -67,13 +67,15 @@
                 </tr>
             </table>
 
-            <br/>
-
             {% if login %}
                 {% if friendCheck %}
-                    <p><input type="submit" value="Already Friends" disabled class="btn btn-outline-primary"/></p>
+                    <p>
+                        <input type="submit" value="Already Friends" disabled class="btn btn-outline-primary"/>
+                    </p>
                 {% else %}
-                    <p><input type="submit" value="Friend" class="btn btn-outline-primary"/></p>
+                    <p>
+                        <input type="submit" value="Friend" class="btn btn-outline-primary"/>
+                    </p>
                 {% endif %}
             {% endif %}
         </form>

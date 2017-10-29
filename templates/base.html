@@ -13,6 +13,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
           integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
@@ -31,8 +32,8 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <ul class="navbar-nav mr-auto">
+<nav class="navbar navbar-expand-lg navbar-inverse">
+    <ul class="nav navbar-nav mr-auto">
         <li class="nav-item active">
             <a class="nav-link" href="/">Home</a>
         </li>
@@ -69,12 +70,14 @@
     </ul>
     <form class="form-inline my-2 my-lg-0" method="GET" action="/search">
         <input class="form-control mr-sm-2" type="search" name="search" placeholder="search" aria-label="Search">
-        <select name="type" class="form-control mr-sm-2">
-            <option value="tag" SELECTED>Tag</option>
-            <option value="comment">Comments</option>
-            <option value="email">Email</option>
-        </select>
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        <div class="form-group">
+            <select name="type" class="form-control mr-sm-2">
+                <option value="tag" SELECTED>Tag</option>
+                <option value="comment">Comments</option>
+                <option value="email">Email</option>
+            </select>
+        </div>
+        <button class="btn btn-success my-2 my-sm-0" type="submit">Search</button>
     </form>
 </nav>
 
