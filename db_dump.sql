@@ -44,7 +44,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES 
+INSERT INTO `users` VALUES
   (1,'asd','asd','test@bu.edu','2016-12-12','asd','M','asd'),
   (2,'asd','asd','test1@bu.edu','2016-12-12','asd','M','asd'),
   (3,'abc','abc','a@a.com','2016-10-02','abc','F','aaa'),
@@ -79,7 +79,7 @@ CREATE TABLE `friends` (
 
 LOCK TABLES `friends` WRITE;
 /*!40000 ALTER TABLE `friends` DISABLE KEYS */;
-INSERT INTO `friends` VALUES 
+INSERT INTO `friends` VALUES
   (1,2),(1,3),(1,4),
   (2,1),(2,3),(2,5),
   (3,1),(3,2),(3,5),
@@ -114,7 +114,7 @@ CREATE TABLE `albums` (
 
 LOCK TABLES `albums` WRITE;
 /*!40000 ALTER TABLE `albums` DISABLE KEYS */;
-INSERT INTO `albums` VALUES 
+INSERT INTO `albums` VALUES
   (1,'scenery',1,'2017-10-27 15:10:25'),
   (2,'animals',4,'2017-10-27 15:16:18'),
   (3,'scenery',3,'2017-10-27 15:23:26');
@@ -146,7 +146,7 @@ CREATE TABLE `photos` (
 
 LOCK TABLES `photos` WRITE;
 /*!40000 ALTER TABLE `photos` DISABLE KEYS */;
-INSERT INTO `photos` VALUES 
+INSERT INTO `photos` VALUES
   (1,1,'sunset','/1/1.jpg','2017-10-27 15:13:09'),
   (2,1,'railway in a jungle','/1/2.jpg','2017-10-27 15:15:03'),
   (3,2,'tiger\'s leap','/4/1.jpg','2017-10-27 15:21:10'),
@@ -185,7 +185,7 @@ CREATE TABLE `comments` (
 
 LOCK TABLES `comments` WRITE;
 /*!40000 ALTER TABLE `comments` DISABLE KEYS */;
-INSERT INTO `comments` VALUES 
+INSERT INTO `comments` VALUES
   (1,3,'nice photo',1,'2017-10-29 14:42:33'),
   (2,6,'nice photo',3,'2017-10-29 14:43:51');
 /*!40000 ALTER TABLE `comments` ENABLE KEYS */;
@@ -215,7 +215,7 @@ CREATE TABLE `likes` (
 
 LOCK TABLES `likes` WRITE;
 /*!40000 ALTER TABLE `likes` DISABLE KEYS */;
-INSERT INTO `likes` VALUES 
+INSERT INTO `likes` VALUES
   (2,1),
   (3,1),
   (6,3);
@@ -242,7 +242,7 @@ CREATE TABLE `tags` (
 
 LOCK TABLES `tags` WRITE;
 /*!40000 ALTER TABLE `tags` DISABLE KEYS */;
-INSERT INTO `tags` VALUES 
+INSERT INTO `tags` VALUES
   (1,'sunset'),
   (2,'rock'),
   (3,'ocean'),
@@ -286,7 +286,7 @@ CREATE TABLE `phototags` (
 
 LOCK TABLES `phototags` WRITE;
 /*!40000 ALTER TABLE `phototags` DISABLE KEYS */;
-INSERT INTO `phototags` VALUES 
+INSERT INTO `phototags` VALUES
   (1,1),(1,2),(1,3),
   (2,4),(2,5),(2,6),
   (3,7),
