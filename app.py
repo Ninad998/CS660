@@ -895,8 +895,9 @@ def findFriends(email):
     cursor.execute("SELECT friendId AS frid, count(friendId) AS ct FROM friends " +
                    "WHERE friendId NOT IN (SELECT friendId FROM friends WHERE userId=%s) " +
                    "AND userId IN (SELECT friendId FROM friends WHERE userId=%s) " +
+                   "AND NOT friendId=%s " +
                    "GROUP BY friendId " +
-                   "ORDER BY ct;", (id, id))
+                   "ORDER BY ct DESC;", (id, id, id))
 
     rows = cursor.fetchall()
     cursor.close()
@@ -904,8 +905,6 @@ def findFriends(email):
 
     friends = []
     for friendId, ct in rows:
-        if friendId == id:
-            continue
         friends.append(getEmailFromUserId(friendId))
 
     return friends
@@ -1132,7 +1131,7 @@ def searchComment(comment):
     conn = db['conn']
     cursor = db['cursor']
 
-    cursor.execute("SELECT user FROM comments WHERE text LIKE '%%%s%%';" % comment)
+    cursor.execute("SELECT DISTINCT user FROM comments WHERE text LIKE '%%%s%%';" % comment)
 
     rows = cursor.fetchall()
 
