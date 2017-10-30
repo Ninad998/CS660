@@ -68,7 +68,7 @@
             </table>
 
             {% if login %}
-                {% if friendCheck %}
+                {% if friendCheck and allowFriend %}
                     <p>
                         <input type="submit" value="Already Friends" disabled class="btn btn-outline-primary"/>
                     </p>

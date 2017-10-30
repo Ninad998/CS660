@@ -1074,11 +1074,13 @@ def friend():
         cursor.close()
         conn.close()
         if flask_login.current_user.is_authenticated:
+            check = getUserIdFromEmail(user['email']) == 0
+
             if user['email'] == flask_login.current_user.id:
                 return flask.redirect(flask.url_for('profile'))
 
             friendCheck = getFriendResult(flask_login.current_user.id, user['email'])
-            return render_template('user.html', user=user, friendCheck=friendCheck,
+            return render_template('user.html', user=user, friendCheck=friendCheck, allowFriend=check,
                                    name=flask_login.current_user.id,
                                    login=flask_login.current_user.is_authenticated)
         else:
