@@ -52,17 +52,15 @@
                         {{ comment }}
                     </div>
                 {% endfor %}
-                {% if login %}
-                    <form action="{{ request.path }}" method="POST" id="photocomment">
-                        <div class="form-group">
-                            <input type="hidden" value="{{ photo[5] }}" name="photoId"/>
-                            <label for="comment">Add comment</label><br/>
-                            <textarea name="comment" class="form-control" placeholder="add comment"
-                                      form="photocomment" rows="3" required></textarea>
-                        </div>
-                        <input type="submit" value="Post" class="btn btn-outline-primary"/>
-                    </form>
-                {% endif %}
+                <form action="{{ request.path }}" method="POST" id="photocomment">
+                    <div class="form-group">
+                        <input type="hidden" value="{{ photo[5] }}" name="photoId"/>
+                        <label for="comment">Add comment</label><br/>
+                        <textarea name="comment" class="form-control" placeholder="add comment"
+                                  form="photocomment" rows="3" required></textarea>
+                    </div>
+                    <input type="submit" value="Post" class="btn btn-outline-primary"/>
+                </form>
             </div>
         </div>
     {% endif %}

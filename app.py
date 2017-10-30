@@ -833,21 +833,24 @@ def editPhoto(userId, photoNo):
     except:
         return flask.redirect(request.path)
 
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+
     if flask_login.current_user.is_authenticated:
-        db = getMysqlConnection()
-        conn = db['conn']
-        cursor = db['cursor']
 
         id = getUserIdFromEmail(flask_login.current_user.id)
+    else:
+        id = 0
 
-        cursor.execute("INSERT INTO comments " +
-                       "(user, photoId, text) " +
-                       "VALUES (%s, %s, %s);", (id, photoId, comment))
+    cursor.execute("INSERT INTO comments " +
+                   "(user, photoId, text) " +
+                   "VALUES (%s, %s, %s);", (id, photoId, comment))
 
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return flask.redirect(request.path)
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return flask.redirect(request.path)
 
 
 # retrieve tag word from tag id

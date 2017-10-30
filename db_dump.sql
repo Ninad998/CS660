@@ -45,6 +45,7 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
+  (0,'anonymous','anonymous','anonymous@user.com','2012-01-01','asd','O','anonymous'),
   (1,'asd','asd','test@bu.edu','2016-12-12','asd','M','asd'),
   (2,'asd','asd','test1@bu.edu','2016-12-12','asd','M','asd'),
   (3,'abc','abc','a@a.com','2016-10-02','abc','F','aaa'),
