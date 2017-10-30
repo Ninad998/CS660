@@ -69,6 +69,7 @@ def new_page_function():
 '''
 
 
+# retrieve all photos
 def getAllPhotos():
     db = getMysqlConnection()
     conn = db['conn']
@@ -87,7 +88,7 @@ def getAllPhotos():
     return photos
 
 
-# default page
+# index page
 @app.route("/", methods=['GET'])
 def index():
     photos = getAllPhotos()
@@ -99,6 +100,7 @@ def index():
                                login=flask_login.current_user.is_authenticated)
 
 
+# check if email exists
 def checkEmail(email):
     # use this to check if a email has already been registered
     db = getMysqlConnection()
@@ -114,6 +116,7 @@ def checkEmail(email):
         return False
 
 
+# find top 10 users
 def findTopUsers():
     db = getMysqlConnection()
     conn = db['conn']
@@ -152,6 +155,7 @@ def findTopUsers():
     return users
 
 
+# top 10 users page
 @app.route('/top', methods=['GET'])
 def top10Users():
     users = findTopUsers()
@@ -164,6 +168,7 @@ def top10Users():
                                login=flask_login.current_user.is_authenticated)
 
 
+# login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -195,6 +200,7 @@ def login():
         return render_template('login.html', title='Sign In', messages=['Email Incorrect!'])
 
 
+# profile page
 @app.route('/profile', methods=['GET', 'POST'])
 @flask_login.login_required
 def profile():
@@ -261,6 +267,7 @@ def profile():
     return flask.redirect(flask.url_for('index'))
 
 
+# logout page
 @app.route('/logout')
 def logout():
     photos = getAllPhotos()
@@ -273,35 +280,18 @@ def logout():
                                login=flask_login.current_user.is_authenticated)
 
 
+# unauthorized page loader
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return abort(401)
 
 
-# you can specify specific methods (GET/POST) in function header instead of inside the functions as seen earlier
-@app.route("/register", methods=['GET'])
-def register():
-    return render_template('register.html', supress='True',
-                           login=flask_login.current_user.is_authenticated)
-
-
-def isEmailUnique(email):
-    # use this to check if a email has already been registered
-    db = getMysqlConnection()
-    conn = db['conn']
-    cursor = db['cursor']
-    if cursor.execute("SELECT email FROM users WHERE email=%s;", email):
-        cursor.close()
-        conn.close()
-        return False
-    else:
-        cursor.close()
-        conn.close()
-        return True
-
-
-@app.route("/register", methods=['POST'])
+# register page
+@app.route("/register", methods=['GET', 'POST'])
 def register_user():
+    if request.method == 'GET':
+        return render_template('register.html', supress='True',
+                               login=flask_login.current_user.is_authenticated)
     import datetime
     register = {}
     try:
@@ -331,7 +321,7 @@ def register_user():
         return render_template('register.html', email=True,
                                login=flask_login.current_user.is_authenticated)
 
-    test = isEmailUnique(register['email'])
+    test = checkEmail(register['email'])
 
     if test:
         db = getMysqlConnection()
@@ -355,6 +345,7 @@ def register_user():
         return render_template('register.html', email=True)
 
 
+# retrieve user id from email
 def getUserIdFromEmail(email):
     db = getMysqlConnection()
     conn = db['conn']
@@ -368,10 +359,12 @@ def getUserIdFromEmail(email):
     return id
 
 
+# return list of allowed files
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
+# retrieve album list
 def getAlbumList(email):
     db = getMysqlConnection()
     conn = db['conn']
@@ -388,6 +381,7 @@ def getAlbumList(email):
     return album
 
 
+# save photo
 def savePhotoData(album, caption, dir):
     db = getMysqlConnection()
     conn = db['conn']
@@ -407,6 +401,7 @@ def savePhotoData(album, caption, dir):
     return id
 
 
+# save photo tags
 def savePhotoTags(photoId, tags):
     db = getMysqlConnection()
     conn = db['conn']
@@ -435,6 +430,7 @@ def savePhotoTags(photoId, tags):
     conn.close()
 
 
+# upload page
 @app.route('/upload', methods=['GET', 'POST'])
 @flask_login.login_required
 def upload():
@@ -494,6 +490,7 @@ def upload():
                         login=flask_login.current_user.is_authenticated)
 
 
+# retrieve tag list
 def getTagList():
     db = getMysqlConnection()
     conn = db['conn']
@@ -510,6 +507,7 @@ def getTagList():
     return tags
 
 
+# album page
 @app.route('/album', methods=['GET'])
 @flask_login.login_required
 def album():
@@ -520,6 +518,7 @@ def album():
                            login=flask_login.current_user.is_authenticated)
 
 
+# make album page
 @app.route('/make', methods=['POST'])
 @flask_login.login_required
 def makeAlbum():
@@ -544,6 +543,7 @@ def makeAlbum():
     return flask.redirect(flask.url_for('album'))
 
 
+# retrieve album name from id
 def getAlbumName(id):
     db = getMysqlConnection()
     conn = db['conn']
@@ -557,6 +557,7 @@ def getAlbumName(id):
     return name
 
 
+# retrieve all photos in album
 def getPhotosFromAlbum(album):
     db = getMysqlConnection()
     conn = db['conn']
@@ -591,6 +592,7 @@ def getPhotosFromAlbum(album):
     return photos
 
 
+# view page
 @app.route('/view', methods=['GET', 'POST'])
 @flask_login.login_required
 def makeEdit():
@@ -627,6 +629,7 @@ def makeEdit():
     return flask.redirect(flask.url_for('album'))
 
 
+# delete album page
 @app.route('/deletealbum', methods=['GET', 'POST'])
 @flask_login.login_required
 def deleteAlbum():
@@ -651,6 +654,7 @@ def deleteAlbum():
     return flask.redirect(flask.url_for('album'))
 
 
+# retrieve all photos in tag for that user
 def getPhotosFromTag(tag, email):
     db = getMysqlConnection()
     conn = db['conn']
@@ -675,6 +679,7 @@ def getPhotosFromTag(tag, email):
     return photos
 
 
+# retrieve all photos in tag
 def getAllPhotosFromTag(tag):
     db = getMysqlConnection()
     conn = db['conn']
@@ -695,6 +700,7 @@ def getAllPhotosFromTag(tag):
     return photos
 
 
+# tag page
 @app.route('/tag', methods=['GET'])
 def viewTag():
     try:
@@ -726,6 +732,7 @@ def viewTag():
                                    login=flask_login.current_user.is_authenticated)
 
 
+# retrieve all comments for a photo id
 def getComments(photoId):
     db = getMysqlConnection()
     conn = db['conn']
@@ -742,6 +749,7 @@ def getComments(photoId):
     return comments
 
 
+# retrieve photo from directory
 def getPhoto(dir):
     db = getMysqlConnection()
     conn = db['conn']
@@ -773,6 +781,7 @@ def getPhoto(dir):
     return photo
 
 
+# get number of likes from photo id
 def getLikeNumber(photoId):
     db = getMysqlConnection()
     conn = db['conn']
@@ -786,6 +795,7 @@ def getLikeNumber(photoId):
     return count
 
 
+# check if user likes the photo
 def checkLike(photoId, userId):
     # use this to check if a email has already been registered
     db = getMysqlConnection()
@@ -801,6 +811,7 @@ def checkLike(photoId, userId):
         return False
 
 
+# view photo page
 @app.route('/view/<int:userId>/<int:photoNo>', methods=['GET', 'POST'])
 def editPhoto(userId, photoNo):
     dir = '/' + str(userId) + '/' + str(photoNo)
@@ -839,6 +850,7 @@ def editPhoto(userId, photoNo):
         return flask.redirect(request.path)
 
 
+# retrieve tag word from tag id
 def getTag(tagId):
     db = getMysqlConnection()
     conn = db['conn']
@@ -852,6 +864,7 @@ def getTag(tagId):
     return word
 
 
+# find top tags
 def findTopTags():
     db = getMysqlConnection()
     conn = db['conn']
@@ -873,6 +886,7 @@ def findTopTags():
     return tags
 
 
+# retrieve email from user id
 def getEmailFromUserId(id):
     db = getMysqlConnection()
     conn = db['conn']
@@ -886,6 +900,7 @@ def getEmailFromUserId(id):
     return email
 
 
+# retrieve all friends of user
 def findFriends(email):
     db = getMysqlConnection()
     conn = db['conn']
@@ -910,6 +925,7 @@ def findFriends(email):
     return friends
 
 
+# retrieve photo from id
 def getPhotoFromId(photoId):
     db = getMysqlConnection()
     conn = db['conn']
@@ -942,6 +958,7 @@ def getPhotoFromId(photoId):
     return photo
 
 
+# 'you may also like' feature
 def getRecommendedPhotos(email):
     db = getMysqlConnection()
     conn = db['conn']
@@ -999,6 +1016,8 @@ def getRecommendedPhotos(email):
     return photos
 
 
+# explore page, shows popular tags, recommended friends and
+# 'you may also like' photos
 @app.route('/explore', methods=['GET'])
 def explore():
     tags = findTopTags()
@@ -1029,6 +1048,7 @@ def getFriendResult(userEmail, friendEmail):
         return False
 
 
+# user page, friend-ing option
 @app.route('/user', methods=['GET', 'POST'])
 def friend():
     if request.method == 'GET':
@@ -1096,6 +1116,7 @@ def friend():
     return flask.redirect(flask.url_for('index'))
 
 
+# like feature
 @app.route('/like', methods=['GET', 'POST'])
 @flask_login.login_required
 def like():
@@ -1126,6 +1147,7 @@ def like():
     return flask.redirect(url)
 
 
+# search on comment
 def searchComment(comment):
     db = getMysqlConnection()
     conn = db['conn']
@@ -1144,6 +1166,7 @@ def searchComment(comment):
     return results
 
 
+# search on email
 def searchEmail(email):
     db = getMysqlConnection()
     conn = db['conn']
@@ -1164,6 +1187,7 @@ def searchEmail(email):
     return results
 
 
+# search on tag
 def searchTag(tags):
     db = getMysqlConnection()
     conn = db['conn']
@@ -1182,6 +1206,7 @@ def searchTag(tags):
     return results
 
 
+# search page
 @app.route('/search', methods=['GET'])
 def search():
     searchType = request.args.get('type')
@@ -1220,6 +1245,7 @@ def search():
                                    login=flask_login.current_user.is_authenticated)
 
 
+# retrieve all friends
 def getFriendList(email):
     id = getUserIdFromEmail(email)
     resultIds = []
@@ -1252,6 +1278,7 @@ def getFriendList(email):
     return results
 
 
+# friend list page
 @app.route('/friendlist', methods=['GET'])
 @flask_login.login_required
 def friendlist():
@@ -1264,6 +1291,7 @@ def friendlist():
 app.secret_key = 'super secret string'
 app.config['SESSION_TYPE'] = 'filesystem'
 
+# main method and run
 if __name__ == "__main__":
     # app.jinja_env.cache = {}
     app.run(port=5000, debug=True, threaded=True)
