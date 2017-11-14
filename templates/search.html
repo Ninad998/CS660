@@ -9,11 +9,18 @@
             Tags Results:
         </div>
         <br/>
-        {% for tag in tags %}
-            <div style="padding-left:2em">
-                <a href="/tag?type=tagall&tag={{ tag }}">{{ tag }}</a>
-            </div>
-        {% endfor %}
+        <div class="row well bs-component">
+            {% for photo in photos %}
+                <div class="col-lg-3">
+                    <a href="/view/{{ photo[2] }}/{{ photo[3] }}">
+                        <div class="center-block">
+                            <img src="{{ url_for("static", filename = photo[1]) }}" class="rounded" width="300"/><br/>
+                            {{ photo[0] }} <br/><br/>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
     {% if userSearch %}
         <div>

@@ -127,25 +127,34 @@ def findTopUsers():
     users = cursor.fetchall()
     contrib = []
     for user, id in users:
+        photoCount = 0
+        commentCount = 0
+        likeCount = 0
         count = 0
 
         cursor.execute("SELECT count(*) FROM photos INNER JOIN albums "
                        "ON photos.album=albums.id "
                        "AND albums.owner=%s;", id)
 
-        count = count + cursor.fetchone()[0]
+        photoCount = cursor.fetchone()[0]
 
         cursor.execute("SELECT count(*) FROM comments WHERE user=%s;", id)
 
-        count = count + cursor.fetchone()[0]
+        commentCount = cursor.fetchone()[0]
 
-        contrib.append((user, count))
+        cursor.execute("SELECT count(*) FROM likes WHERE user=%s;", id)
+
+        likeCount = cursor.fetchone()[0]
+
+        count = count + photoCount + commentCount
+
+        contrib.append((user, count, photoCount, commentCount, likeCount))
 
     contrib = sorted(contrib, key=lambda x: x[1], reverse=True)[:10]
 
     users = []
-    for user, id in contrib:
-        users.append(user)
+    for user, count, photoCount, commentCount, likeCount in contrib:
+        users.append((user, photoCount, commentCount, likeCount))
 
     print(users)
 
@@ -323,7 +332,7 @@ def register_user():
 
     test = checkEmail(register['email'])
 
-    if test:
+    if not test:
         db = getMysqlConnection()
         conn = db['conn']
         cursor = db['cursor']
@@ -958,6 +967,7 @@ def getPhotoFromId(photoId):
 
     cursor.close()
     conn.close()
+
     return photo
 
 
@@ -1051,6 +1061,40 @@ def getFriendResult(userEmail, friendEmail):
         return False
 
 
+def getActivityFromId(id):
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+
+    photoCount = 0
+    commentCount = 0
+    likeCount = 0
+    count = 0
+
+    cursor.execute("SELECT count(*) FROM photos INNER JOIN albums "
+                   "ON photos.album=albums.id "
+                   "AND albums.owner=%s;", id)
+
+    photoCount = cursor.fetchone()[0]
+
+    cursor.execute("SELECT count(*) FROM comments WHERE user=%s;", id)
+
+    commentCount = cursor.fetchone()[0]
+
+    cursor.execute("SELECT count(*) FROM likes WHERE user=%s;", id)
+
+    likeCount = cursor.fetchone()[0]
+
+    activity = (photoCount, commentCount, likeCount)
+
+    print(activity)
+
+    cursor.close()
+    conn.close()
+
+    return activity
+
+
 # user page, friend-ing option
 @app.route('/user', methods=['GET', 'POST'])
 def friend():
@@ -1073,18 +1117,27 @@ def friend():
 
         cursor.close()
         conn.close()
+
+        activity = getActivityFromId(getUserIdFromEmail(user['email']))
+
         if flask_login.current_user.is_authenticated:
-            check = getUserIdFromEmail(user['email']) == 0
+            check = (getUserIdFromEmail(user['email']) != 0)
 
             if user['email'] == flask_login.current_user.id:
                 return flask.redirect(flask.url_for('profile'))
 
             friendCheck = getFriendResult(flask_login.current_user.id, user['email'])
-            return render_template('user.html', user=user, friendCheck=friendCheck, allowFriend=check,
+
+            print(friendCheck)
+
+            print(check)
+
+            return render_template('user.html', user=user, friendCheck=friendCheck,
+                                   allowFriend=check, activity=activity,
                                    name=flask_login.current_user.id,
                                    login=flask_login.current_user.is_authenticated)
         else:
-            return render_template('user.html', user=user,
+            return render_template('user.html', user=user, activity=activity,
                                    login=flask_login.current_user.is_authenticated)
 
     user = {}
@@ -1199,15 +1252,44 @@ def searchTag(tags):
     cursor = db['cursor']
     results = []
 
-    for tag in tags:
-        cursor.execute("SELECT word FROM tags WHERE word LIKE '%%%s%%';" % tag)
+    sql = "SELECT id FROM tags WHERE "
 
-        rows = cursor.fetchall()
-        for row in rows:
-            results.append(row[0])
+    for i in range(len(tags)):
+        if i == 0:
+            sql = sql + ('word LIKE "%%%s%%"' % tags[i])
+
+        else:
+            sql = sql + (' OR word LIKE "%%%s%%"' % tags[i])
+
+    sql = sql + ';'
+
+    print(sql)
+
+    cursor.execute(sql)
+
+    rows = cursor.fetchall()
+
+    sql = "SELECT photoId FROM phototags GROUP BY photoId "
+    for i in range(len(rows)):
+        if i == 0:
+            sql = sql + ('HAVING sum(case when tagId = %s then 1 else 0 end) > 0' % rows[i])
+
+        else:
+            sql = sql + (' AND sum(case when tagId = %s then 1 else 0 end) > 0' % rows[i])
+
+    sql = sql + ';'
+
+    print(sql)
+
+    cursor.execute(sql)
+
+    rows = cursor.fetchall()
 
     cursor.close()
     conn.close()
+
+    for row in rows:
+        results.append(getPhotoFromId(row[0]))
     return results
 
 
@@ -1241,11 +1323,11 @@ def search():
     else:
         result = searchTag(list(set(query.split(" "))))
         if flask_login.current_user.is_authenticated:
-            return render_template('search.html', tags=result, name=flask_login.current_user.id,
+            return render_template('search.html', photos=result, name=flask_login.current_user.id,
                                    tagSearch=True, userSearch=False, commentSearch=False,
                                    login=flask_login.current_user.is_authenticated)
         else:
-            return render_template('search.html', tags=result,
+            return render_template('search.html', photos=result,
                                    tagSearch=True, userSearch=False, commentSearch=False,
                                    login=flask_login.current_user.is_authenticated)
 
@@ -1290,6 +1372,26 @@ def friendlist():
     result = getFriendList(flask_login.current_user.id)
 
     return render_template('friends.html', users=result, name=flask_login.current_user.id,
+                           login=flask_login.current_user.is_authenticated)
+
+
+@app.route('/userlikes', methods=['GET'])
+def userLikes():
+    photoId = request.args.get('photoId')
+    db = getMysqlConnection()
+    conn = db['conn']
+    cursor = db['cursor']
+
+    cursor.execute("SELECT DISTINCT user FROM likes WHERE " +
+                   "photo=%s;", photoId)
+
+    rows = cursor.fetchall()
+
+    users = []
+    for row in rows:
+        users.append(getEmailFromUserId(row[0]))
+
+    return render_template('userlikes.html', users=users, name=flask_login.current_user.id,
                            login=flask_login.current_user.is_authenticated)
 
 

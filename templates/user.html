@@ -70,10 +70,16 @@
             {% if login %}
                 {% if friendCheck and allowFriend %}
                     <p>
+                        Photos: {{ activity[0] }} <br/>
+                        Comments: {{ activity[1] }} <br/>
+                        Likes: {{ activity[2] }} <br/><br/>
                         <input type="submit" value="Already Friends" disabled class="btn btn-outline-primary"/>
                     </p>
                 {% else %}
                     <p>
+                        Photos: {{ activity[0] }} <br/>
+                        Comments: {{ activity[1] }} <br/>
+                        Likes: {{ activity[2] }} <br/><br/>
                         <input type="submit" value="Friend" class="btn btn-outline-primary"/>
                     </p>
                 {% endif %}

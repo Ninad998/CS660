@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="title">
+        <h1>User Likes</h1>
+    </div>
+    <br/>
+    <ol>
+        {% for user in users %}
+            <li>
+                User Email: <a href="/user?id={{ user }}">{{ user }}</a>
+            </li>
+        {% endfor %}
+    </ol>
+{% endblock %}

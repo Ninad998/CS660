@@ -3,9 +3,12 @@
 {% block content %}
     {% if users %}
         <ul class="list-group col-lg-4">
-            {% for user in users %}
+            {% for user, photoCount, commentCount, likeCount in users %}
                 <li class="list-group-item">
                     User Email: <a href="/user?id={{ user }}">{{ user }}</a>
+                    Photos: {{ photoCount }}
+                    Comments: {{ commentCount }}
+                    Likes: {{ likeCount }}
                 </li>
             {% endfor %}
         </ul>
